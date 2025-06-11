@@ -6,242 +6,112 @@
     <title>P2P Tic-Tac-Toe Deluxe+</title>
     <style>
         :root {
-            --primary-color: #00ffff;
-            --bg-color: #1a1a2e;
-            --dark-bg: #0a0a0a;
-            --cell-bg: #2a2a4e;
-            --accent-color: #ff0080;
-            --win-color: #00ff80;
-            --text-color: #f0f0f0;
-            --error-color: #ff4d4d;
+            --primary-color: #00ffff; --bg-color: #1a1a2e; --dark-bg: #0a0a0a; --cell-bg: #2a2a4e;
+            --accent-color: #ff0080; --win-color: #00ff80; --text-color: #f0f0f0; --error-color: #ff4d4d;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            font-family: 'Courier New', monospace;
-            background: linear-gradient(135deg, var(--dark-bg), var(--bg-color));
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-            overflow: hidden;
+            font-family: 'Courier New', monospace; background: linear-gradient(135deg, var(--dark-bg), var(--bg-color));
+            color: var(--text-color); display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; overflow: hidden;
         }
-
         .container { width: 95%; max-width: 800px; padding: 20px; position: relative; }
-
-        h1 {
-            font-size: 2.5em;
-            color: var(--primary-color);
-            text-shadow: 0 0 15px var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        /* --- Screens --- */
+        h1 { font-size: 2.5em; color: var(--primary-color); text-shadow: 0 0 15px var(--primary-color); margin-bottom: 20px; }
         .screen { display: none; flex-direction: column; align-items: center; gap: 15px; }
         .screen.active { display: flex; }
-
-        /* --- Menu Screen --- */
         #menuScreen { gap: 25px; }
         .menu-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
         .menu-section {
-            background: rgba(0,0,0,0.2);
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
-            min-width: 320px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
+            min-width: 320px; display: flex; flex-direction: column; gap: 15px;
         }
         .menu-section h2 { color: var(--primary-color); }
         .input-group { display: flex; flex-direction: column; gap: 10px; width: 100%; }
         input[type="text"], input[type="password"] {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--primary-color);
-            border-radius: 5px;
-            padding: 10px;
-            color: white;
-            font-family: inherit;
-            font-size: 16px;
-            text-align: center;
-            width: 100%;
+            background: rgba(255, 255, 255, 0.1); border: 1px solid var(--primary-color); border-radius: 5px;
+            padding: 10px; color: white; font-family: inherit; font-size: 16px; text-align: center; width: 100%;
         }
         .btn {
-            padding: 10px 20px;
-            background: linear-gradient(45deg, #0066cc, #0080ff);
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 16px;
-            transition: all 0.3s ease;
+            padding: 10px 20px; background: linear-gradient(45deg, #0066cc, #0080ff); border: none; border-radius: 5px;
+            color: white; cursor: pointer; font-family: inherit; font-size: 16px; transition: all 0.3s ease;
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
         }
         .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 128, 255, 0.4); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        #publicRoomsList {
-            list-style: none;
-            max-height: 150px;
-            overflow-y: auto;
-            padding: 10px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 5px;
-        }
-        #publicRoomsList li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
+        #publicRoomsList { list-style: none; max-height: 150px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 5px; }
+        #publicRoomsList li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
         #publicRoomsList li .join-btn { font-size: 12px; padding: 5px 10px; background: var(--win-color); color: var(--dark-bg); }
-
-        /* --- Game Screen --- */
         #gameScreen { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 20px; }
         .game-area { display: flex; flex-direction: column; align-items: center; gap: 15px; }
         #status { font-size: 1.2em; min-height: 25px; }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 5px;
-            background-color: var(--primary-color);
-            border: 3px solid var(--primary-color);
-            border-radius: 5px;
-            box-shadow: 0 0 20px var(--primary-color);
-        }
-        .cell {
-            background-color: var(--cell-bg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 4em;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+        .board { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 5px; background-color: var(--primary-color); border: 3px solid var(--primary-color); border-radius: 5px; box-shadow: 0 0 20px var(--primary-color); }
+        .cell { background-color: var(--cell-bg); display: flex; justify-content: center; align-items: center; font-size: 4em; cursor: pointer; transition: background-color 0.3s; }
         .cell:hover:not(.X):not(.O) { background-color: rgba(0, 255, 255, 0.2); }
-        .cell.X { color: var(--primary-color); }
-        .cell.O { color: var(--accent-color); }
+        .cell.X { color: var(--primary-color); } .cell.O { color: var(--accent-color); }
         .cell.win { background-color: var(--win-color); color: var(--dark-bg); }
-
-        .home-btn {
-            position: absolute;
-            top: 0;
-            left: 0;
-            font-size: 24px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 10px;
-            opacity: 0.7;
-            transition: opacity 0.3s;
-        }
+        .home-btn { position: absolute; top: 0; left: 0; font-size: 24px; background: none; border: none; cursor: pointer; padding: 10px; opacity: 0.7; transition: opacity 0.3s; }
         .home-btn:hover { opacity: 1; }
-
-        #roomCodeDisplay { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; }
-        #roomCodeText { font-weight: bold; letter-spacing: 2px; color: var(--win-color); }
-        #copyCodeBtn { font-size: 12px; padding: 5px 10px; margin-left: 10px; }
-
-        /* --- Chat --- */
-        #chatContainer {
-            width: 315px;
-            height: 400px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
-            display: none;
-            flex-direction: column;
-        }
+        #chatContainer { width: 315px; height: 400px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); display: none; flex-direction: column; }
         #chatMessages { flex-grow: 1; padding: 10px; overflow-y: auto; text-align: left; display: flex; flex-direction: column-reverse; }
         .chat-message { margin-bottom: 8px; padding: 8px; border-radius: 5px; max-width: 80%; word-wrap: break-word; }
-        .chat-message.me { background-color: #0066cc; align-self: flex-end; }
-        .chat-message.opponent { background-color: #444; align-self: flex-start; }
+        .chat-message.me { background-color: #0066cc; align-self: flex-end; } .chat-message.opponent { background-color: #444; align-self: flex-start; }
         .chat-message.system { background-color: transparent; align-self: center; font-style: italic; color: #888; }
         #chatForm { display: flex; padding: 10px; }
+        /* Modal for Waiting Room */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: var(--cell-bg); padding: 30px; border-radius: 10px; border: 2px solid var(--primary-color); text-align: center; }
+        #roomCodeText { font-size: 2em; letter-spacing: 4px; color: var(--win-color); margin: 10px 0; }
+        #copyCodeBtn { margin-top: 15px; }
+        /* Notification */
+        .notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: var(--primary-color); color: var(--dark-bg); padding: 15px; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 2000; opacity: 0; transition: opacity 0.5s, top 0.5s; }
+        .notification.show { opacity: 1; top: 40px; }
+        .notification.error { background-color: var(--error-color); }
 
         @media (max-width: 768px) {
-            h1 { font-size: 2em; }
-            .board { grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(3, 80px); }
-            .cell { font-size: 3em; }
-            #chatContainer { width: 100%; height: 250px; }
-            .menu-section { min-width: 280px; }
+            h1 { font-size: 2em; } .board { grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(3, 80px); }
+            .cell { font-size: 3em; } #chatContainer { width: 100%; height: 250px; } .menu-section { min-width: 280px; }
         }
     </style>
 </head>
 <body>
-
+    <div id="notification" class="notification"></div>
+    <div id="waitingModal" class="modal">
+        <div class="modal-content">
+            <h2>Waiting for Opponent...</h2>
+            <p>Share this room code:</p>
+            <h3 id="roomCodeText"></h3>
+            <button id="copyCodeBtn" class="btn">Copy Code</button>
+        </div>
+    </div>
     <div class="container">
         <h1>P2P Tic-Tac-Toe Deluxe+</h1>
-
-        <!-- Menu Screen -->
         <div id="menuScreen" class="screen active">
-            <div class="menu-options">
-                <div class="menu-section">
-                    <h2>Play Solo</h2>
-                    <button id="playBotBtn" class="btn">Play vs. Bot</button>
-                </div>
-                <div class="menu-section">
-                    <h2>Play with a Friend</h2>
-                    <div class="input-group">
-                        <input type="password" id="createPasswordInput" placeholder="Optional: Room Password">
-                        <button id="createPrivateRoomBtn" class="btn">Create Private Room</button>
-                    </div>
-                    <p>OR</p>
-                    <div class="input-group">
-                        <input type="text" id="joinCodeInput" placeholder="Enter Private Code">
-                        <input type="password" id="joinPasswordInput" placeholder="Enter Room Password">
-                        <button id="joinPrivateRoomBtn" class="btn">Join</button>
-                    </div>
-                </div>
-            </div>
-             <div class="menu-section">
-                <h2>Public Lobbies</h2>
-                 <div class="input-group">
-                    <input type="text" id="publicRoomNameInput" placeholder="Your Public Room Name" style="flex-grow: 1;">
-                    <button id="createPublicRoomBtn" class="btn" style="flex-shrink: 0;">Create</button>
-                </div>
-                <ul id="publicRoomsList"><li>Connecting...</li></ul>
-            </div>
+            <!-- Menu content dynamically updated -->
         </div>
-
-        <!-- Game Screen -->
         <div id="gameScreen" class="screen">
-            <button id="homeBtn" class="home-btn" title="Back to Menu">🏠</button>
+             <button id="homeBtn" class="home-btn" title="Back to Menu">🏠</button>
             <div class="game-area">
-                <div id="status" class="status">Initializing...</div>
-                <div id="board" class="board"></div>
-                <div id="roomCodeDisplay" style="display: none;">
-                    Code: <span id="roomCodeText"></span>
-                    <button id="copyCodeBtn" class="btn">Copy</button>
-                </div>
-                <button id="playAgainBtn" class="btn" style="display: none;">Play Again</button>
+                <div id="status"></div><div id="board"></div><button id="playAgainBtn" class="btn" style="display: none;"></button>
             </div>
             <div id="chatContainer">
-                <div id="chatMessages"></div>
-                <form id="chatForm">
-                    <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off" style="flex-grow: 1;">
-                    <button type="submit" class="btn" style="flex-shrink: 0;">Send</button>
-                </form>
+                <div id="chatMessages"></div><form id="chatForm"><input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off" style="flex-grow: 1;"><button type="submit" class="btn" style="flex-shrink: 0;">Send</button></form>
             </div>
         </div>
     </div>
-
+    <audio id="sound-click" src="https://cdn.pixabay.com/audio/2022/03/15/audio_2491f845d4.mp3"></audio>
+    <audio id="sound-win" src="https://cdn.pixabay.com/audio/2022/11/17/audio_88f2f27b38.mp3"></audio>
+    <audio id="sound-notify" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c3b419888d.mp3"></audio>
+    
     <script>
         // --- CONFIGURATION ---
-        const SIGNALING_SERVER_URL = 'wss://p2p-chat-app-server.glitch.me/';
+        // Change this to your server's IP or domain name when you deploy
+        const SIGNALING_SERVER_URL = 'ws://localhost:3000'; 
         const ICE_SERVERS = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
         const WINNING_COMBOS = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ];
 
         // --- DOM ELEMENTS ---
-        const DOMElements = Object.fromEntries(
-            ['menuScreen', 'gameScreen', 'playBotBtn', 'createPrivateRoomBtn', 'createPasswordInput', 'joinCodeInput', 'joinPasswordInput', 'joinPrivateRoomBtn', 'publicRoomNameInput', 'createPublicRoomBtn', 'publicRoomsList', 'status', 'board', 'roomCodeDisplay', 'roomCodeText', 'copyCodeBtn', 'playAgainBtn', 'homeBtn', 'chatContainer', 'chatMessages', 'chatForm', 'chatInput']
-            .map(id => [id, document.getElementById(id)])
-        );
+        const DOMElements = {};
+        const elementIds = ['menuScreen', 'gameScreen', 'status', 'board', 'playAgainBtn', 'homeBtn', 'chatContainer', 'chatMessages', 'chatForm', 'chatInput', 'waitingModal', 'roomCodeText', 'copyCodeBtn', 'notification'];
+        elementIds.forEach(id => DOMElements[id] = document.getElementById(id));
 
         // --- GAME STATE ---
         let gameState = {};
@@ -252,284 +122,200 @@
             if (gameState.peerConnection) gameState.peerConnection.close();
             gameState = {
                 ws: null, peerConnection: null, dataChannel: null, roomCode: null, gameMode: null,
-                myPlayerSymbol: null, currentPlayer: 'X', boardState: Array(9).fill(null),
-                isGameOver: false, isHost: false,
+                myPlayerSymbol: null, currentPlayer: 'X', boardState: Array(9).fill(null), isGameOver: false, isHost: false,
             };
         }
 
         // --- INITIALIZATION ---
         function init() {
-            DOMElements.playBotBtn.addEventListener('click', startBotGame);
-            DOMElements.createPrivateRoomBtn.addEventListener('click', () => createRoom(false));
-            DOMElements.createPublicRoomBtn.addEventListener('click', () => createRoom(true));
-            DOMElements.joinPrivateRoomBtn.addEventListener('click', joinPrivateRoom);
-            DOMElements.copyCodeBtn.addEventListener('click', copyRoomCode);
-            DOMElements.playAgainBtn.addEventListener('click', requestPlayAgain);
-            DOMElements.homeBtn.addEventListener('click', backToMenu);
-            DOMElements.chatForm.addEventListener('submit', (e) => { e.preventDefault(); sendChatMessage(); });
-            
+            renderMenu();
             createBoard();
             connectToSignalingForLobby();
             resetGameState();
         }
-        
-        // --- SCREEN & UI MANAGEMENT ---
-        function showScreen(screen) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            DOMElements[screen + 'Screen'].classList.add('active');
-        }
-        
-        function updateStatus(text) { DOMElements.status.textContent = text; }
 
-        function createBoard() {
-            DOMElements.board.innerHTML = '';
-            for (let i = 0; i < 9; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.dataset.index = i;
-                cell.addEventListener('click', () => handleCellClick(i));
-                DOMElements.board.appendChild(cell);
-            }
-        }
-        
-        function updateBoard() {
-            gameState.boardState.forEach((value, index) => {
-                const cell = DOMElements.board.children[index];
-                cell.textContent = value;
-                cell.className = 'cell';
-                if (value) cell.classList.add(value);
-            });
-        }
-        
-        function addChatMessage(message, sender) {
-            const messageEl = document.createElement('div');
-            messageEl.className = `chat-message ${sender}`;
-            messageEl.textContent = message;
-            DOMElements.chatMessages.prepend(messageEl);
-        }
-        
-        function copyRoomCode() {
-            navigator.clipboard.writeText(gameState.roomCode).then(() => {
-                DOMElements.copyCodeBtn.textContent = 'Copied!';
-                setTimeout(() => DOMElements.copyCodeBtn.textContent = 'Copy', 2000);
-            }).catch(err => {
-                alert('Failed to copy. Please copy the code manually.');
-                console.error('Clipboard error:', err);
-            });
-        }
-
-        // --- BOT LOGIC ---
-        function startBotGame() {
-            resetGameState();
-            gameState.gameMode = 'bot';
-            gameState.myPlayerSymbol = 'X';
-            DOMElements.chatContainer.style.display = 'none';
-            DOMElements.roomCodeDisplay.style.display = 'none';
-            DOMElements.playAgainBtn.style.display = 'none';
-            showScreen('game');
-            resetGame();
-        }
-
-        function botMove() {
-            if (gameState.isGameOver) return;
-            const check = (player) => { for(let i=0; i<9; i++) { if(!gameState.boardState[i]) { gameState.boardState[i] = player; if(checkWinner(player)) { gameState.boardState[i] = null; return i; } gameState.boardState[i] = null; } } return -1; };
-            let move = check('O'); // 1. Win
-            if(move === -1) move = check('X'); // 2. Block
-            if(move === -1 && !gameState.boardState[4]) move = 4; // 3. Center
-            if(move === -1) { const moves = [0,2,6,8,1,3,5,7].filter(i => !gameState.boardState[i]); move = moves[0]; } // 4. Corner/Side
+        // --- UI & NOTIFICATIONS ---
+        function renderMenu() {
+            DOMElements.menuScreen.innerHTML = `
+                <div class="menu-options">
+                    <div class="menu-section"><h2>Play Solo</h2><button id="playBotBtn" class="btn">Play vs. Bot</button></div>
+                    <div class="menu-section"><h2>Play with a Friend</h2>
+                        <div class="input-group"><input type="password" id="createPasswordInput" placeholder="Optional: Room Password"><button id="createPrivateRoomBtn" class="btn">Create Private Room</button></div>
+                        <p>OR</p>
+                        <div class="input-group"><input type="text" id="joinCodeInput" placeholder="Enter Private Code"><input type="password" id="joinPasswordInput" placeholder="Enter Room Password"><button id="joinPrivateRoomBtn" class="btn">Join</button></div>
+                    </div>
+                </div>
+                <div class="menu-section"><h2>Public Lobbies</h2>
+                    <div class="input-group" style="flex-direction: row;"><input type="text" id="publicRoomNameInput" placeholder="Your Public Room Name"><button id="createPublicRoomBtn" class="btn">Create</button></div>
+                    <ul id="publicRoomsList"><li>Connecting...</li></ul>
+                </div>`;
             
-            handleMove(move, 'O');
+            // Re-bind events after re-rendering
+            document.getElementById('playBotBtn').addEventListener('click', startBotGame);
+            document.getElementById('createPrivateRoomBtn').addEventListener('click', () => createRoom(false));
+            document.getElementById('createPublicRoomBtn').addEventListener('click', () => createRoom(true));
+            document.getElementById('joinPrivateRoomBtn').addEventListener('click', joinPrivateRoom);
         }
 
-        // --- GAME FLOW & LOGIC ---
+        function showScreen(screen) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); DOMElements[screen + 'Screen'].classList.add('active'); }
+        function updateStatus(text) { DOMElements.status.textContent = text; }
+        function createBoard() { DOMElements.board.innerHTML = ''; for (let i = 0; i < 9; i++) { const cell = document.createElement('div'); cell.className = 'cell'; cell.dataset.index = i; cell.addEventListener('click', () => handleCellClick(i)); DOMElements.board.appendChild(cell); } }
+        function updateBoard() { gameState.boardState.forEach((value, index) => { const cell = DOMElements.board.children[index]; cell.textContent = value; cell.className = 'cell'; if (value) cell.classList.add(value); }); }
+        
+        function showNotification(message, isError = false) {
+            playSound('notify');
+            const notification = DOMElements.notification;
+            notification.textContent = message;
+            notification.className = `notification ${isError ? 'error' : ''}`;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 3000);
+        }
+
+        function playSound(soundId) { try { document.getElementById(`sound-${soundId}`).play(); } catch (e) { /* ignore */ } }
+        function copyRoomCode() { navigator.clipboard.writeText(gameState.roomCode).then(() => showNotification('Room code copied to clipboard!')).catch(() => showNotification('Failed to copy. Please copy manually.', true)); }
+        
+        // --- GAME MODES ---
+        function startBotGame() { resetGameState(); gameState.gameMode = 'bot'; gameState.myPlayerSymbol = 'X'; showGameUI(false); resetGame(); }
+        function createRoom(isPublic) {
+            const roomName = document.getElementById('publicRoomNameInput').value.trim();
+            const password = document.getElementById('createPasswordInput').value.trim();
+            if (isPublic && !roomName) { showNotification("Please enter a name for your public room.", true); return; }
+            resetGameState();
+            gameState.gameMode = 'multiplayer'; gameState.myPlayerSymbol = 'X'; gameState.isHost = true;
+            connectAndSetupSignaling(() => gameState.ws.send(JSON.stringify({ type: 'create_room', isPublic, name: roomName, password })));
+            showGameUI(true, true);
+        }
+        function joinPrivateRoom() {
+            const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+            const password = document.getElementById('joinPasswordInput').value.trim();
+            if (code) joinRoom(code, password); else showNotification("Please enter a private room code.", true);
+        }
+        function joinRoom(code, password) {
+            resetGameState();
+            gameState.gameMode = 'multiplayer'; gameState.myPlayerSymbol = 'O'; gameState.roomCode = code;
+            connectAndSetupSignaling(() => gameState.ws.send(JSON.stringify({ type: 'join_room', roomCode: code, password })));
+            showGameUI(true, false);
+            updateStatus('Joining room...');
+        }
+
+        function showGameUI(isMultiplayer, isHostWaiting = false) {
+            DOMElements.chatContainer.style.display = isMultiplayer ? 'flex' : 'none';
+            DOMElements.playAgainBtn.style.display = 'none';
+            DOMElements.chatMessages.innerHTML = '';
+            if (isHostWaiting) {
+                DOMElements.waitingModal.style.display = 'flex';
+                DOMElements.copyCodeBtn.addEventListener('click', copyRoomCode);
+            } else {
+                DOMElements.waitingModal.style.display = 'none';
+            }
+            showScreen('game');
+        }
+
+        // --- GAME LOGIC ---
         function handleCellClick(index) {
             if (gameState.isGameOver || gameState.boardState[index] || (gameState.gameMode === 'multiplayer' && gameState.currentPlayer !== gameState.myPlayerSymbol)) return;
+            playSound('click');
             handleMove(index, gameState.myPlayerSymbol);
             if (gameState.gameMode === 'multiplayer') sendGameData({ type: 'move', index });
             else if (gameState.gameMode === 'bot' && !gameState.isGameOver) { updateStatus("Bot's turn (O)"); setTimeout(botMove, 500); }
         }
-        
         function handleMove(index, player) {
             if (gameState.isGameOver || gameState.boardState[index]) return;
-            gameState.boardState[index] = player;
-            updateBoard();
+            gameState.boardState[index] = player; updateBoard();
             if (checkGameStatus()) return;
             gameState.currentPlayer = player === 'X' ? 'O' : 'X';
             const statusText = gameState.gameMode === 'bot' ? (gameState.currentPlayer === 'X' ? "Your turn" : "Bot's turn") : (gameState.myPlayerSymbol === gameState.currentPlayer ? "Your turn" : "Opponent's turn");
             updateStatus(`${statusText} (${gameState.currentPlayer})`);
         }
-
         function checkGameStatus() {
             const winner = checkWinner(gameState.currentPlayer);
-            if (winner) { gameState.isGameOver = true; updateStatus(`${winner} wins!`); DOMElements.playAgainBtn.style.display = 'block'; return true; }
+            if (winner) { playSound('win'); gameState.isGameOver = true; updateStatus(`${winner} wins!`); DOMElements.playAgainBtn.style.display = 'block'; return true; }
             if (!gameState.boardState.includes(null)) { gameState.isGameOver = true; updateStatus("It's a draw!"); DOMElements.playAgainBtn.style.display = 'block'; return true; }
             return false;
         }
-
-        function checkWinner(player) {
-            for (const combo of WINNING_COMBOS) {
-                if (combo.every(index => gameState.boardState[index] === player)) { combo.forEach(index => DOMElements.board.children[index].classList.add('win')); return player; }
-            }
-            return null;
-        }
-        
-        function requestPlayAgain() {
-            if (gameState.gameMode === 'bot') { resetGame(); return; }
-            sendGameData({ type: 'play_again' });
-            updateStatus('Waiting for opponent to accept...');
-            DOMElements.playAgainBtn.disabled = true;
-        }
-
+        function checkWinner(player) { for (const combo of WINNING_COMBOS) { if (combo.every(i => gameState.boardState[i] === player)) { combo.forEach(i => DOMElements.board.children[i].classList.add('win')); return player; } } return null; }
+        function requestPlayAgain() { if (gameState.gameMode === 'bot') { resetGame(); return; } sendGameData({ type: 'play_again' }); updateStatus('Waiting for opponent...'); DOMElements.playAgainBtn.disabled = true; }
         function resetGame() {
-            gameState.boardState = Array(9).fill(null);
-            gameState.isGameOver = false;
-            gameState.currentPlayer = 'X';
-            DOMElements.playAgainBtn.style.display = 'none';
-            DOMElements.playAgainBtn.disabled = false;
-            updateBoard();
+            gameState.boardState = Array(9).fill(null); gameState.isGameOver = false; gameState.currentPlayer = 'X';
+            DOMElements.playAgainBtn.style.display = 'none'; DOMElements.playAgainBtn.disabled = false; updateBoard();
             const startText = gameState.gameMode === 'bot' ? 'Your turn' : (gameState.myPlayerSymbol === 'X' ? 'Your turn' : 'Opponent\'s turn');
             updateStatus(`${startText} (X)`);
         }
+        function backToMenu() { resetGameState(); connectToSignalingForLobby(); showScreen('menu'); renderMenu(); }
 
-        function backToMenu() {
-            if (lobbyWs && lobbyWs.readyState !== WebSocket.OPEN) connectToSignalingForLobby();
-            resetGameState();
-            showScreen('menu');
+        // --- BOT AI ---
+        function botMove() {
+            if (gameState.isGameOver) return;
+            const check = (p) => { for(let i=0; i<9; i++) { if(!gameState.boardState[i]) { gameState.boardState[i] = p; if(checkWinner(p)) { gameState.boardState[i] = null; return i; } gameState.boardState[i] = null; } } return -1; };
+            let move = check('O'); if(move === -1) move = check('X'); if(move === -1 && !gameState.boardState[4]) move = 4;
+            if(move === -1) { const moves = [0,2,6,8,1,3,5,7].filter(i => !gameState.boardState[i]); move = moves[0]; }
+            playSound('click'); handleMove(move, 'O');
         }
 
-        // --- CHAT ---
-        function sendChatMessage() {
-            const message = DOMElements.chatInput.value.trim();
-            if (message) { addChatMessage(message, 'me'); sendGameData({ type: 'chat', message }); DOMElements.chatInput.value = ''; }
-        }
-        
+        // --- CHAT & P2P DATA ---
+        function sendChatMessage() { const message = DOMElements.chatInput.value.trim(); if (message) { addChatMessage(message, 'me'); sendGameData({ type: 'chat', message }); DOMElements.chatInput.value = ''; } }
+        function addChatMessage(message, sender) { const messageEl = document.createElement('div'); messageEl.className = `chat-message ${sender}`; messageEl.textContent = message; DOMElements.chatMessages.prepend(messageEl); }
+        function sendGameData(data) { if (gameState.dataChannel && gameState.dataChannel.readyState === 'open') gameState.dataChannel.send(JSON.stringify(data)); }
+
         // --- WEBSOCKET & SIGNALING ---
         function connectToSignalingForLobby() {
-            if(lobbyWs && lobbyWs.readyState === WebSocket.OPEN) { lobbyWs.send(JSON.stringify({ type: 'get_rooms' })); return; }
+            if(lobbyWs && lobbyWs.readyState !== WebSocket.CLOSED) lobbyWs.close();
             lobbyWs = new WebSocket(SIGNALING_SERVER_URL);
             lobbyWs.onopen = () => lobbyWs.send(JSON.stringify({ type: 'get_rooms' }));
             lobbyWs.onmessage = (event) => {
                 const message = JSON.parse(event.data);
                 if(message.type === 'rooms_list') {
-                    DOMElements.publicRoomsList.innerHTML = '';
-                    if (!message.rooms || message.rooms.length === 0) { DOMElements.publicRoomsList.innerHTML = '<li>No public rooms available.</li>'; return; }
+                    const list = document.getElementById('publicRoomsList');
+                    if (!list) return; // Menu not rendered yet
+                    list.innerHTML = '';
+                    if (!message.rooms || message.rooms.length === 0) { list.innerHTML = '<li>No public rooms available.</li>'; return; }
                     message.rooms.forEach(room => {
-                        const li = document.createElement('li');
-                        li.textContent = room.name;
-                        const joinBtn = document.createElement('button');
-                        joinBtn.className = 'btn join-btn'; joinBtn.textContent = 'Join';
-                        joinBtn.onclick = () => joinRoom(room.code, '');
-                        li.appendChild(joinBtn);
-                        DOMElements.publicRoomsList.appendChild(li);
+                        const li = document.createElement('li'); li.textContent = `${room.name} ${room.hasPassword ? '🔒' : ''}`;
+                        const joinBtn = document.createElement('button'); joinBtn.className = 'btn join-btn'; joinBtn.textContent = 'Join';
+                        joinBtn.onclick = () => { if(room.hasPassword) { const pass = prompt("This room requires a password:"); if (pass !== null) joinRoom(room.code, pass); } else { joinRoom(room.code, ''); } };
+                        li.appendChild(joinBtn); list.appendChild(li);
                     });
                 }
             };
-            lobbyWs.onclose = () => { DOMElements.publicRoomsList.innerHTML = '<li>Connection to server lost.</li>'; };
+            lobbyWs.onclose = () => { const list = document.getElementById('publicRoomsList'); if(list) list.innerHTML = '<li>Connection to server lost.</li>'; };
         }
-
-        function connectAndSetupSignaling() {
+        function connectAndSetupSignaling(onOpenCallback) {
             gameState.ws = new WebSocket(SIGNALING_SERVER_URL);
+            gameState.ws.onopen = onOpenCallback;
             gameState.ws.onmessage = handleSignalingMessage;
-            gameState.ws.onerror = (err) => { alert('Cannot connect to the server.'); backToMenu(); }
+            gameState.ws.onerror = () => { showNotification('Cannot connect to the server.', true); backToMenu(); };
         }
-
         async function handleSignalingMessage(event) {
             const msg = JSON.parse(event.data);
             switch (msg.type) {
-                case 'room_created':
-                    gameState.roomCode = msg.roomCode;
-                    DOMElements.roomCodeText.textContent = gameState.roomCode;
-                    DOMElements.roomCodeDisplay.style.display = 'block';
-                    break;
-                case 'room_joined':
-                    updateStatus('Opponent joined. Establishing connection...');
-                    await createPeerConnection();
-                    const offer = await gameState.peerConnection.createOffer();
-                    await gameState.peerConnection.setLocalDescription(offer);
-                    gameState.ws.send(JSON.stringify({ type: 'offer', sdp: offer, roomCode: gameState.roomCode }));
-                    break;
-                case 'offer':
-                    updateStatus('Received offer. Connecting...');
-                    await createPeerConnection();
-                    await gameState.peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp));
-                    const answer = await gameState.peerConnection.createAnswer();
-                    await gameState.peerConnection.setLocalDescription(answer);
-                    gameState.ws.send(JSON.stringify({ type: 'answer', sdp: answer, roomCode: gameState.roomCode }));
-                    break;
+                case 'room_created': gameState.roomCode = msg.roomCode; DOMElements.roomCodeText.textContent = gameState.roomCode; break;
+                case 'room_joined': DOMElements.waitingModal.style.display = 'none'; updateStatus('Opponent joined. Establishing connection...'); await createPeerConnection(); const offer = await gameState.peerConnection.createOffer(); await gameState.peerConnection.setLocalDescription(offer); gameState.ws.send(JSON.stringify({ type: 'offer', sdp: offer, roomCode: gameState.roomCode })); break;
+                case 'offer': updateStatus('Received offer. Connecting...'); await createPeerConnection(); await gameState.peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp)); const answer = await gameState.peerConnection.createAnswer(); await gameState.peerConnection.setLocalDescription(answer); gameState.ws.send(JSON.stringify({ type: 'answer', sdp: answer, roomCode: gameState.roomCode })); break;
                 case 'answer': await gameState.peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp)); break;
                 case 'ice_candidate': if(gameState.peerConnection) await gameState.peerConnection.addIceCandidate(new RTCIceCandidate(msg.candidate)); break;
-                case 'error': case 'room_not_found': case 'wrong_password': alert(`Error: ${msg.message}`); backToMenu(); break;
+                case 'error': case 'room_not_found': case 'wrong_password': showNotification(msg.message, true); backToMenu(); break;
             }
         }
-        
-        // --- MULTIPLAYER ROOMS & P2P ---
-        function createRoom(isPublic) {
-            const roomName = DOMElements.publicRoomNameInput.value.trim();
-            const password = DOMElements.createPasswordInput.value.trim();
-            if(isPublic && !roomName) { alert("Please enter a name for your public room."); return; }
-            resetGameState();
-            gameState.gameMode = 'multiplayer'; gameState.myPlayerSymbol = 'X'; gameState.isHost = true;
-            
-            connectAndSetupSignaling();
-            showScreen('game');
-            updateStatus('Creating room, waiting for opponent...');
-            DOMElements.chatContainer.style.display = 'flex';
-            addChatMessage('Waiting for an opponent...', 'system');
-            
-            const interval = setInterval(() => {
-                if (gameState.ws && gameState.ws.readyState === WebSocket.OPEN) {
-                    gameState.ws.send(JSON.stringify({ type: 'create_room', isPublic, name: roomName, password }));
-                    clearInterval(interval);
-                }
-            }, 100);
-        }
-
-        function joinPrivateRoom() {
-            const code = DOMElements.joinCodeInput.value.trim().toUpperCase();
-            const password = DOMElements.joinPasswordInput.value.trim();
-            if (code) joinRoom(code, password); else alert("Please enter a private room code.");
-        }
-
-        function joinRoom(code, password) {
-            resetGameState();
-            gameState.gameMode = 'multiplayer'; gameState.myPlayerSymbol = 'O'; gameState.roomCode = code;
-            
-            connectAndSetupSignaling();
-            showScreen('game');
-            updateStatus('Joining room...');
-            DOMElements.chatContainer.style.display = 'flex';
-            
-            const interval = setInterval(() => {
-                if (gameState.ws && gameState.ws.readyState === WebSocket.OPEN) {
-                    gameState.ws.send(JSON.stringify({ type: 'join_room', roomCode: code, password }));
-                    clearInterval(interval);
-                }
-            }, 100);
-        }
-
         async function createPeerConnection() {
             gameState.peerConnection = new RTCPeerConnection(ICE_SERVERS);
             gameState.peerConnection.onicecandidate = e => { if (e.candidate) gameState.ws.send(JSON.stringify({ type: 'ice_candidate', candidate: e.candidate, roomCode: gameState.roomCode })); };
             gameState.peerConnection.ondatachannel = e => { gameState.dataChannel = e.channel; setupDataChannel(); };
             if (gameState.isHost) { gameState.dataChannel = gameState.peerConnection.createDataChannel('gameData'); setupDataChannel(); }
         }
-
         function setupDataChannel() {
             gameState.dataChannel.onopen = () => { addChatMessage('Opponent connected! Game starts.', 'system'); resetGame(); };
             gameState.dataChannel.onmessage = e => {
                 const data = JSON.parse(e.data);
                 if (data.type === 'move') handleMove(data.index, gameState.myPlayerSymbol === 'X' ? 'O' : 'X');
                 else if (data.type === 'chat') addChatMessage(data.message, 'opponent');
-                else if (data.type === 'play_again') { if (confirm('Opponent wants to play again. Do you agree?')) { sendGameData({ type: 'play_again_confirm' }); resetGame(); } }
+                else if (data.type === 'play_again') { showNotification('Opponent wants to play again!'); if (confirm('Opponent wants to play again. Do you agree?')) { sendGameData({ type: 'play_again_confirm' }); resetGame(); } }
                 else if (data.type === 'play_again_confirm') { resetGame(); }
             };
-            gameState.dataChannel.onclose = () => { alert('Opponent disconnected.'); backToMenu(); };
+            gameState.dataChannel.onclose = () => { showNotification('Opponent disconnected.', true); backToMenu(); };
         }
-
-        function sendGameData(data) { if (gameState.dataChannel && gameState.dataChannel.readyState === 'open') gameState.dataChannel.send(JSON.stringify(data)); }
-
+        
         // --- START THE APP ---
-        init();
+        window.onload = init;
     </script>
 </body>
 </html>

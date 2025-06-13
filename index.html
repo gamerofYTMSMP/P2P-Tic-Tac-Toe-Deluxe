@@ -82,8 +82,17 @@
 
             <!-- Ad Banner -->
             <section class="ad-banner">
-                <script async="async" data-cfasync="false" src="//pl26902245.profitableratecpm.com/8b4fdd4220ea00e824c517e3872ac365/invoke.js"></script>
                 <div id="container-8b4fdd4220ea00e824c517e3872ac365"></div>
+            </section>
+
+            <!-- Categories Section -->
+            <section class="categories-section">
+                <h3>Browse by Category</h3>
+                <div id="categoriesContainer" class="categories-container">
+                    <button class="category-btn active" data-category="all">
+                        <i class="fas fa-th"></i> All Games
+                    </button>
+                </div>
             </section>
 
             <!-- Games Grid -->
@@ -99,13 +108,23 @@
                     <p>Try searching for something else.</p>
                 </div>
             </section>
+
+            <!-- Mid-content Ad -->
+            <section class="ad-banner">
+                <div id="container-8b4fdd4220ea00e824c517e3872ac365-2"></div>
+            </section>
         </div>
     </main>
+
+    <!-- End of Website Ad Section -->
+    <section class="bottom-ad">
+        <div id="container-8b4fdd4220ea00e824c517e3872ac365-3"></div>
+    </section>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2024 Gamurobot. Made with <i class="fas fa-heart"></i> for kids!</p>
+            <p>&copy; 2025 Gamurobot. Made with <i class="fas fa-heart"></i></p>
         </div>
     </footer>
 
@@ -114,11 +133,24 @@
         <div class="modal-content game-content">
             <div class="game-header">
                 <h3 id="gameTitle"></h3>
-                <span class="close game-close">&times;</span>
+                <div class="game-controls">
+                    <button id="fullscreenBtn" class="control-btn" title="Fullscreen">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <span class="close game-close">&times;</span>
+                </div>
             </div>
-            <iframe id="gameFrame" src="" frameborder="0"></iframe>
+            <iframe id="gameFrame" src="" frameborder="0" allowfullscreen></iframe>
         </div>
     </div>
+
+    <!-- Bottom Ad Section -->
+    <section class="bottom-ad">
+        <div id="container-8b4fdd4220ea00e824c517e3872ac365-4"></div>
+    </section>
+
+    <!-- Ad Script - Load once for all containers -->
+    <script async="async" data-cfasync="false" src="//pl26902245.profitableratecpm.com/8b4fdd4220ea00e824c517e3872ac365/invoke.js"></script>
 
     <!-- Firebase and Script -->
     <script type="module">

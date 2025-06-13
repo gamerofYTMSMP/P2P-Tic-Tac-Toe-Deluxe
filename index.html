@@ -1,324 +1,156 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P Tic-Tac-Toe on GitHub Pages</title>
-    <!-- We need the PeerJS library from a CDN -->
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peer.min.js"></script>
-    <style>
-        :root {
-            --primary-color: #00ffff; --bg-color: #1a1a2e; --dark-bg: #0a0a0a; --cell-bg: #2a2a4e;
-            --accent-color: #ff0080; --win-color: #00ff80; --text-color: #f0f0f0; --error-color: #ff4d4d;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Courier New', monospace; background: linear-gradient(135deg, var(--dark-bg), var(--bg-color));
-            color: var(--text-color); display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; overflow: hidden;
-        }
-        .container { width: 95%; max-width: 800px; padding: 20px; position: relative; }
-        h1 { font-size: 2.5em; color: var(--primary-color); text-shadow: 0 0 15px var(--primary-color); margin-bottom: 20px; }
-        .screen { display: none; flex-direction: column; align-items: center; gap: 15px; }
-        .screen.active { display: flex; }
-        #menuScreen { gap: 25px; }
-        .menu-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
-        .menu-section {
-            background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
-            min-width: 320px; display: flex; flex-direction: column; gap: 15px;
-        }
-        .menu-section h2 { color: var(--primary-color); }
-        .input-group { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-        input[type="text"], input[type="password"] {
-            background: rgba(255, 255, 255, 0.1); border: 1px solid var(--primary-color); border-radius: 5px;
-            padding: 10px; color: white; font-family: inherit; font-size: 16px; text-align: center; width: 100%;
-        }
-        .btn {
-            padding: 10px 20px; background: linear-gradient(45deg, #0066cc, #0080ff); border: none; border-radius: 5px;
-            color: white; cursor: pointer; font-family: inherit; font-size: 16px; transition: all 0.3s ease;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-        }
-        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 128, 255, 0.4); }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        #gameScreen { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 20px; }
-        .game-area { display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        #status { font-size: 1.2em; min-height: 25px; }
-        .board { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 5px; background-color: var(--primary-color); border: 3px solid var(--primary-color); border-radius: 5px; box-shadow: 0 0 20px var(--primary-color); }
-        .cell { background-color: var(--cell-bg); display: flex; justify-content: center; align-items: center; font-size: 4em; cursor: pointer; transition: background-color 0.3s; }
-        .cell:hover:not(.X):not(.O) { background-color: rgba(0, 255, 255, 0.2); }
-        .cell.X { color: var(--primary-color); } .cell.O { color: var(--accent-color); }
-        .cell.win { background-color: var(--win-color); color: var(--dark-bg); }
-        .home-btn { position: absolute; top: 0; left: 0; font-size: 24px; background: none; border: none; cursor: pointer; padding: 10px; opacity: 0.7; transition: opacity 0.3s; }
-        .home-btn:hover { opacity: 1; }
-        #chatContainer { width: 315px; height: 400px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); display: none; flex-direction: column; }
-        #chatMessages { flex-grow: 1; padding: 10px; overflow-y: auto; text-align: left; display: flex; flex-direction: column-reverse; }
-        .chat-message { margin-bottom: 8px; padding: 8px; border-radius: 5px; max-width: 80%; word-wrap: break-word; }
-        .chat-message.me { background-color: #0066cc; align-self: flex-end; } .chat-message.opponent { background-color: #444; align-self: flex-start; }
-        .chat-message.system { background-color: transparent; align-self: center; font-style: italic; color: #888; }
-        #chatForm { display: flex; padding: 10px; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: var(--cell-bg); padding: 30px; border-radius: 10px; border: 2px solid var(--primary-color); text-align: center; display: flex; flex-direction: column; gap: 15px;}
-        #roomIdText { font-size: 1.5em; letter-spacing: 2px; color: var(--win-color); }
-        .notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: var(--primary-color); color: var(--dark-bg); padding: 15px; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 2000; opacity: 0; transition: opacity 0.5s, top 0.5s; pointer-events: none; }
-        .notification.show { opacity: 1; top: 40px; }
-        .notification.error { background-color: var(--error-color); }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 2em; } .board { grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(3, 80px); }
-            .cell { font-size: 3em; } #chatContainer { width: 100%; height: 250px; } .menu-section { min-width: 280px; }
-        }
-    </style>
+    <title>Gamurobot - Fun Games for Kids</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
 </head>
 <body>
-    <div id="notification" class="notification"></div>
-    <div id="waitingModal" class="modal">
-        <div class="modal-content">
-            <h2>Waiting for Opponent...</h2><p>Share this link with a friend:</p>
-            <h3 id="roomIdText"></h3>
-            <button id="copyLinkBtn" class="btn">Copy Link</button>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-robot"></i> Gamurobot</h1>
+            </div>
+            <nav class="nav">
+                <button id="authBtn" class="auth-btn">
+                    <i class="fas fa-user"></i> Sign In
+                </button>
+            </nav>
         </div>
-    </div>
-    <div id="passwordModal" class="modal">
-        <div class="modal-content">
-            <h2>Password Required</h2><p>This room is password protected.</p>
-            <input type="password" id="passwordInput" placeholder="Enter password">
-            <button id="passwordSubmitBtn" class="btn">Join</button>
-        </div>
-    </div>
+    </header>
 
-    <div class="container">
-        <h1>P2P Tic-Tac-Toe</h1>
-        <div id="menuScreen" class="screen active">
-             <div class="menu-options">
-                <div class="menu-section"><h2>Play Solo</h2><button id="playBotBtn" class="btn">Play vs. Bot</button></div>
-                <div class="menu-section"><h2>Play with a Friend</h2>
-                    <div class="input-group"><input type="password" id="createPasswordInput" placeholder="Optional: Room Password"><button id="createRoomBtn" class="btn">Create Room</button></div>
-                    <p>OR</p>
-                    <div class="input-group"><input type="text" id="joinIdInput" placeholder="Enter Room ID"><button id="joinRoomBtn" class="btn">Join Room</button></div>
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="auth-container">
+                <h2 id="authTitle">Welcome to Gamurobot!</h2>
+                <div id="authTabs" class="auth-tabs">
+                    <button class="tab-btn active" data-tab="signin">Sign In</button>
+                    <button class="tab-btn" data-tab="signup">Sign Up</button>
                 </div>
-            </div>
-        </div>
-        <div id="gameScreen" class="screen">
-             <button id="homeBtn" class="home-btn" title="Back to Menu">🏠</button>
-            <div class="game-area">
-                <div id="status"></div><div id="board"></div><button id="playAgainBtn" class="btn" style="display: none;"></button>
-            </div>
-            <div id="chatContainer">
-                <div id="chatMessages"></div><form id="chatForm"><input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off" style="flex-grow: 1;"><button type="submit" class="btn" style="flex-shrink: 0;">Send</button></form>
+                
+                <form id="authForm" class="auth-form">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" id="authSubmit" class="submit-btn">Sign In</button>
+                </form>
+                
+                <div class="auth-divider">
+                    <span>OR</span>
+                </div>
+                
+                <button id="skipAuth" class="skip-btn">
+                    <i class="fas fa-play"></i> Skip and Play Games
+                </button>
+                
+                <div id="authMessage" class="auth-message"></div>
             </div>
         </div>
     </div>
 
-    <audio id="sound-click" src="https://cdn.pixabay.com/audio/2022/03/15/audio_2491f845d4.mp3" preload="auto"></audio>
-    <audio id="sound-win" src="https://cdn.pixabay.com/audio/2022/11/17/audio_88f2f27b38.mp3" preload="auto"></audio>
-    <audio id="sound-notify" src="https://cdn.pixabay.com/audio/2022/03/10/audio_c3b419888d.mp3" preload="auto"></audio>
-    
-    <script>
-        // --- DOM ELEMENTS & GAME STATE---
-        const DOMElements = {};
-        ['menuScreen', 'gameScreen', 'status', 'board', 'playAgainBtn', 'homeBtn', 'chatContainer', 'chatMessages', 'chatForm', 'chatInput', 'waitingModal', 'passwordModal', 'roomIdText', 'copyLinkBtn', 'passwordInput', 'passwordSubmitBtn', 'notification', 'playBotBtn', 'createRoomBtn', 'joinRoomBtn', 'createPasswordInput', 'joinIdInput'].forEach(id => DOMElements[id] = document.getElementById(id));
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Welcome Section -->
+            <section class="welcome">
+                <h2>Welcome to the Fun Zone!</h2>
+                <p>Discover amazing games and have endless fun!</p>
+            </section>
 
-        const WINNING_COMBOS = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ];
-        let gameState = {};
+            <!-- Search Section -->
+            <section class="search-section">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search for your favorite games...">
+                    <button id="clearSearch" class="clear-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </section>
 
-        function resetGameState() {
-            if (gameState.peer) gameState.peer.destroy();
-            if (gameState.conn) gameState.conn.close();
-            gameState = { peer: null, conn: null, myId: null, gameMode: null, myPlayerSymbol: null, currentPlayer: 'X', boardState: Array(9).fill(null), isGameOver: false, isHost: false, roomPassword: null };
-        }
+            <!-- Ad Banner -->
+            <section class="ad-banner">
+                <script async="async" data-cfasync="false" src="//pl26902245.profitableratecpm.com/8b4fdd4220ea00e824c517e3872ac365/invoke.js"></script>
+                <div id="container-8b4fdd4220ea00e824c517e3872ac365"></div>
+            </section>
 
-        // --- INITIALIZATION ---
-        function init() {
-            DOMElements.playBotBtn.addEventListener('click', startBotGame);
-            DOMElements.createRoomBtn.addEventListener('click', createRoom);
-            DOMElements.joinRoomBtn.addEventListener('click', () => joinRoom(DOMElements.joinIdInput.value.trim()));
-            DOMElements.homeBtn.addEventListener('click', backToMenu);
-            DOMElements.chatForm.addEventListener('submit', (e) => { e.preventDefault(); sendChatMessage(); });
-            DOMElements.copyLinkBtn.addEventListener('click', copyJoinLink);
+            <!-- Games Grid -->
+            <section class="games-section">
+                <div id="loadingSpinner" class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading awesome games...</p>
+                </div>
+                <div id="gamesGrid" class="games-grid"></div>
+                <div id="noResults" class="no-results" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <h3>No games found!</h3>
+                    <p>Try searching for something else.</p>
+                </div>
+            </section>
+        </div>
+    </main>
 
-            createBoard();
-            resetGameState();
-            handleUrlJoin();
-        }
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Gamurobot. Made with <i class="fas fa-heart"></i> for kids!</p>
+        </div>
+    </footer>
 
-        function handleUrlJoin() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const roomId = urlParams.get('room');
-            if (roomId) {
-                showNotification(`Attempting to join room: ${roomId}`);
-                DOMElements.joinIdInput.value = roomId;
-                joinRoom(roomId);
-            }
-        }
+    <!-- Game Modal -->
+    <div id="gameModal" class="modal game-modal">
+        <div class="modal-content game-content">
+            <div class="game-header">
+                <h3 id="gameTitle"></h3>
+                <span class="close game-close">&times;</span>
+            </div>
+            <iframe id="gameFrame" src="" frameborder="0"></iframe>
+        </div>
+    </div>
 
-        // --- UI & NOTIFICATIONS ---
-        function showScreen(screen) { DOMElements.menuScreen.classList.remove('active'); DOMElements.gameScreen.classList.remove('active'); DOMElements[`${screen}Screen`].classList.add('active'); }
-        function updateStatus(text) { DOMElements.status.textContent = text; }
-        function createBoard() { DOMElements.board.innerHTML = ''; for (let i = 0; i < 9; i++) { const cell = document.createElement('div'); cell.className = 'cell'; cell.dataset.index = i; cell.addEventListener('click', () => handleCellClick(i)); DOMElements.board.appendChild(cell); } }
-        function updateBoard() { gameState.boardState.forEach((value, index) => { const cell = DOMElements.board.children[index]; cell.textContent = value; cell.className = 'cell'; if (value) cell.classList.add(value); }); }
-        function showNotification(message, isError = false) { playSound('notify'); const n = DOMElements.notification; n.textContent = message; n.className = `notification ${isError ? 'error' : ''}`; n.classList.add('show'); setTimeout(() => n.classList.remove('show'), 3000); }
-        function playSound(soundId) { try { document.getElementById(`sound-${soundId}`).play(); } catch (e) {} }
-        function copyJoinLink() { const url = `${window.location.origin}${window.location.pathname}?room=${gameState.myId}`; navigator.clipboard.writeText(url).then(() => showNotification('Join link copied!')).catch(() => showNotification('Failed to copy link.', true)); }
-        
-        // --- GAME MODES ---
-        function startBotGame() { resetGameState(); gameState.gameMode = 'bot'; gameState.myPlayerSymbol = 'X'; showGameUI(false); resetGame(); }
-        function createRoom() { resetGameState(); gameState.gameMode = 'multiplayer'; gameState.isHost = true; gameState.myPlayerSymbol = 'X'; gameState.roomPassword = DOMElements.createPasswordInput.value.trim() || null; initializePeer(); showGameUI(true, true); }
-        function joinRoom(peerId) { if (!peerId) { showNotification('Please enter a Room ID.', true); return; } resetGameState(); gameState.gameMode = 'multiplayer'; gameState.isHost = false; gameState.myPlayerSymbol = 'O'; initializePeer(peerId); showGameUI(true, false); updateStatus(`Connecting to ${peerId}...`); }
-        function showGameUI(isMultiplayer, isHostWaiting = false) {
-            DOMElements.chatContainer.style.display = isMultiplayer ? 'flex' : 'none';
-            DOMElements.playAgainBtn.style.display = 'none';
-            DOMElements.chatMessages.innerHTML = '';
-            DOMElements.waitingModal.style.display = isHostWaiting ? 'flex' : 'none';
-            DOMElements.passwordModal.style.display = 'none';
-            showScreen('game');
-        }
+    <!-- Firebase and Script -->
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
 
-        // --- PEERJS & P2P LOGIC ---
-        function initializePeer(peerIdToConnect = null) {
-            // Use PeerJS's public, free broker server
-            gameState.peer = new Peer(undefined, { debug: 2 });
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBIoeP5V3I1j2Nh7IJensdE5q2apjzB8iQ",
+            authDomain: "gamurobot.firebaseapp.com",
+            projectId: "gamurobot",
+            storageBucket: "gamurobot.firebasestorage.app",
+            messagingSenderId: "501874172493",
+            appId: "1:501874172493:web:22043eadfe6628208b3204",
+            measurementId: "G-F7HQ1E15HC"
+        };
 
-            gameState.peer.on('open', id => {
-                gameState.myId = id;
-                console.log('My peer ID is: ' + id);
-                if (gameState.isHost) {
-                    DOMElements.roomIdText.textContent = id;
-                } else if (peerIdToConnect) {
-                    connectToPeer(peerIdToConnect);
-                }
-            });
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const analytics = getAnalytics(app);
 
-            gameState.peer.on('connection', conn => {
-                console.log('Incoming connection from', conn.peer);
-                if (gameState.conn) { conn.close(); return; } // Already in a game
-                gameState.conn = conn;
-                setupConnectionEvents();
-            });
-
-            gameState.peer.on('error', err => {
-                console.error('PeerJS error:', err);
-                showNotification(`Connection error: ${err.type}`, true);
-                backToMenu();
-            });
-        }
-        
-        function connectToPeer(peerId) {
-            console.log('Attempting to connect to', peerId);
-            gameState.conn = gameState.peer.connect(peerId, { reliable: true });
-            setupConnectionEvents();
-        }
-
-        function setupConnectionEvents() {
-            gameState.conn.on('open', () => {
-                console.log('Connection established!');
-                DOMElements.waitingModal.style.display = 'none';
-                DOMElements.passwordModal.style.display = 'none';
-                if (gameState.isHost) {
-                    // Host sends the initial handshake with password info
-                    sendGameData({ type: 'handshake', hasPassword: !!gameState.roomPassword });
-                } else {
-                    // Client has connected, nothing to do but wait for handshake
-                }
-            });
-            gameState.conn.on('data', data => handleData(data));
-            gameState.conn.on('close', () => { showNotification('Opponent disconnected.'); backToMenu(); });
-        }
-
-        function handleData(data) {
-            console.log('Received data:', data);
-            switch(data.type) {
-                case 'handshake': // Received by client
-                    if (data.hasPassword) {
-                        DOMElements.passwordModal.style.display = 'flex';
-                        const onPasswordSubmit = () => {
-                            sendGameData({ type: 'password_attempt', password: DOMElements.passwordInput.value });
-                            DOMElements.passwordSubmitBtn.removeEventListener('click', onPasswordSubmit);
-                        };
-                        DOMElements.passwordSubmitBtn.addEventListener('click', onPasswordSubmit);
-                    } else {
-                        sendGameData({ type: 'handshake_ok' });
-                        resetGame();
-                    }
-                    break;
-                case 'password_attempt': // Received by host
-                    if (data.password === gameState.roomPassword) {
-                        sendGameData({ type: 'handshake_ok' });
-                        resetGame();
-                    } else {
-                        sendGameData({ type: 'password_wrong' });
-                    }
-                    break;
-                case 'password_wrong': // Received by client
-                    showNotification('Incorrect password.', true);
-                    backToMenu();
-                    break;
-                case 'handshake_ok': // Received by both
-                    DOMElements.passwordModal.style.display = 'none';
-                    resetGame();
-                    break;
-                case 'move': handleMove(data.index, gameState.myPlayerSymbol === 'X' ? 'O' : 'X'); break;
-                case 'chat': addChatMessage(data.message, 'opponent'); break;
-
-                case 'play_again':
-                    showNotification('Opponent wants to play again!');
-                    const userAgreed = confirm('Opponent wants to play again. Do you agree?');
-                    sendGameData({ type: 'play_again_response', agreed: userAgreed });
-                    if(userAgreed) resetGame();
-                    break;
-
-                case 'play_again_response':
-                    if (data.agreed) { resetGame(); }
-                    else { showNotification('Opponent declined to play again.'); DOMElements.playAgainBtn.disabled = false; updateStatus('Game Over.');}
-                    break;
-            }
-        }
-
-        // --- GAME LOGIC ---
-        function handleCellClick(index) {
-            if (gameState.isGameOver || gameState.boardState[index] || (gameState.gameMode === 'multiplayer' && gameState.currentPlayer !== gameState.myPlayerSymbol)) return;
-            playSound('click'); handleMove(index, gameState.myPlayerSymbol);
-            if (gameState.gameMode === 'multiplayer') sendGameData({ type: 'move', index });
-            else if (gameState.gameMode === 'bot' && !gameState.isGameOver) { updateStatus("Bot's turn (O)"); setTimeout(botMove, 500); }
-        }
-        function handleMove(index, player) {
-            if (gameState.isGameOver || gameState.boardState[index]) return;
-            gameState.boardState[index] = player; updateBoard();
-            if (checkGameStatus()) return;
-            gameState.currentPlayer = player === 'X' ? 'O' : 'X';
-            const statusText = gameState.gameMode === 'bot' ? (gameState.currentPlayer === 'X' ? "Your turn" : "Bot's turn") : (gameState.myPlayerSymbol === gameState.currentPlayer ? "Your turn" : "Opponent's turn");
-            updateStatus(`${statusText} (${gameState.currentPlayer})`);
-        }
-        function checkGameStatus() {
-            const winner = checkWinner(gameState.currentPlayer);
-            if (winner) { playSound('win'); gameState.isGameOver = true; updateStatus(`${winner} wins!`); DOMElements.playAgainBtn.style.display = 'block'; return true; }
-            if (!gameState.boardState.includes(null)) { gameState.isGameOver = true; updateStatus("It's a draw!"); DOMElements.playAgainBtn.style.display = 'block'; return true; }
-            return false;
-        }
-        function checkWinner(player) { for (const combo of WINNING_COMBOS) { if (combo.every(i => gameState.boardState[i] === player)) { combo.forEach(i => DOMElements.board.children[i].classList.add('win')); return player; } } return null; }
-        function requestPlayAgain() { if (gameState.gameMode === 'bot') { resetGame(); return; } sendGameData({ type: 'play_again' }); updateStatus('Waiting for opponent...'); DOMElements.playAgainBtn.disabled = true; }
-        function resetGame() {
-            gameState.boardState = Array(9).fill(null); gameState.isGameOver = false; gameState.currentPlayer = 'X';
-            DOMElements.playAgainBtn.style.display = 'none'; DOMElements.playAgainBtn.disabled = false; updateBoard();
-            const startText = gameState.gameMode === 'bot' ? 'Your turn' : (gameState.myPlayerSymbol === 'X' ? 'Your turn' : 'Opponent\'s turn');
-            updateStatus(`${startText} (X)`);
-        }
-        function backToMenu() { resetGameState(); showScreen('menu'); window.history.pushState({}, '', window.location.pathname); }
-
-        // --- BOT AI ---
-        function botMove() {
-            if (gameState.isGameOver) return;
-            const check = (p) => { for(let i=0; i<9; i++) { if(!gameState.boardState[i]) { gameState.boardState[i] = p; if(checkWinner(p)) { gameState.boardState[i] = null; return i; } gameState.boardState[i] = null; } } return -1; };
-            let move = check('O'); if(move === -1) move = check('X'); if(move === -1 && !gameState.boardState[4]) move = 4;
-            if(move === -1) { const moves = [0,2,6,8,1,3,5,7].filter(i => !gameState.boardState[i]); move = moves[0]; }
-            playSound('click'); handleMove(move, 'O');
-        }
-
-        // --- CHAT ---
-        function sendChatMessage() { const message = DOMElements.chatInput.value.trim(); if (message) { addChatMessage(message, 'me'); sendGameData({ type: 'chat', message }); DOMElements.chatInput.value = ''; } }
-        function addChatMessage(message, sender) { const messageEl = document.createElement('div'); messageEl.className = `chat-message ${sender}`; messageEl.textContent = message; DOMElements.chatMessages.prepend(messageEl); }
-        function sendGameData(data) { if (gameState.conn && gameState.conn.open) gameState.conn.send(data); }
-        
-        // --- START THE APP ---
-        window.onload = init;
+        // Make auth available globally
+        window.firebaseAuth = auth;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.sendEmailVerification = sendEmailVerification;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
     </script>
+    <script src="script.js"></script>
 </body>
 </html>
